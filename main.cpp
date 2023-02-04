@@ -11,6 +11,14 @@
 using namespace std;
 
 
+// ################################################################## json helpers
+nlohmann::json stringToJson(string input) {
+	// string s = "[\"nlohmann\", \"json\"]";
+	nlohmann::json response = nlohmann::json::parse(input);
+
+	return response;
+}
+
 int jsonExample(){
 	nlohmann::json jdEmployees =  {
 		{"firstName","Sean"},
@@ -31,6 +39,7 @@ int jsonExample(){
    return 0;
 }
 
+// ############################################################## HTTP
 char* stringToCharArray(string input){
 	const int length = input.length();
  
@@ -81,16 +90,49 @@ string httpgetRequest(string url){
 	return response_string;
 }
 
+nlohmann::json httpgetRequestAsJson(string url) {
+	string response = httpgetRequest(url);
+	nlohmann::json resp = stringToJson(response);
+	return resp;
+}
+
+//###################################################################################### main
+// void timer_start(std::function<void(void)> func, unsigned int interval)
+// {
+//     std::thread([func, interval]() {
+//         while (true)
+//         {
+//             func();
+//             std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+//         }
+//     }).detach();
+// }
 
 
+// void do_something()
+// {
+//     std::cout << "I am doing something" << std::endl;
+// }
 
+// void triggerIntervalFunction(std::function<void(void)> func, unsigned int interval) {
+//     timer_start(func, interval);
+
+//     while(true);
+// }
+
+
+//############################################################## main
 int main()
 {
 
-	string response = httpgetRequest("https://api.coindesk.com/v1/bpi/currentprice.json");
-	cout << response;
+	// string response = httpgetRequest("https://api.coindesk.com/v1/bpi/currentprice.json");
+	// cout << response;
 
-	 jsonExample();
+	nlohmann::json xxx = httpgetRequestAsJson("https://api.coindesk.com/v1/bpi/currentprice.json");
+	std::cout << xxx.at("time").at("updated") << '\n';
+
+	// triggerIntervalFunction(do_something, 1000);
+	// jsonExample();
 
 	// char* str = httpgetRequest("https://api.coindesk.com/v1/bpi/currentprice.json");
 	// printf("%s\n", str);
