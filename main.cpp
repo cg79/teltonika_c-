@@ -5,6 +5,7 @@
 
 // #include "http_get_post/HttpRequest.h"
 #include "json/json.hpp"
+// #include "timers/ExecuteFunctionUntil.h"
 
 // #include "curlpp/cURLpp.hpp"
 // #include "curlpp/Options.hpp"
@@ -101,28 +102,33 @@ nlohmann::json httpgetRequestAsJson(string url) {
 }
 
 //###################################################################################### main
-// void timer_start(std::function<void(void)> func, unsigned int interval)
-// {
-//     std::thread([func, interval]() {
-//         while (true)
-//         {
-//             func();
-//             std::this_thread::sleep_for(std::chrono::milliseconds(interval));
-//         }
-//     }).detach();
-// }
+void timer_start(std::function<void(void)> func, unsigned int interval, std::function<bool(void)> shouldStopFunc)
+{
+    std::thread([func, interval, shouldStopFunc]() {
+		bool shouldStop = shouldStopFunc();
 
+        while (!shouldStop)
+        {
+            func();
+            std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+        }
+    }).detach();
+}
 
-// void do_something()
-// {
-//     std::cout << "I am doing something" << std::endl;
-// }
+void do_something()
+{
+    std::cout << "I am doing something" << std::endl;
+}
 
-// void triggerIntervalFunction(std::function<void(void)> func, unsigned int interval) {
-//     timer_start(func, interval);
+bool shouldStopTimer() {
+	return false;
+}
 
-//     while(true);
-// }
+void triggerIntervalFunction(std::function<void(void)> func, unsigned int interval, std::function<bool(void)> shouldStopFunc) {
+    timer_start(func, interval, shouldStopFunc);
+
+    while(true);
+}
 
 
 //############################################################## main
@@ -135,7 +141,9 @@ int main()
 	nlohmann::json xxx = httpgetRequestAsJson("https://api.coindesk.com/v1/bpi/currentprice.json");
 	std::cout << xxx.at("time").at("updated") << '\n';
 
-	// triggerIntervalFunction(do_something, 1000);
+	// ExecuteFunctionUntil* executeFunctionUntil = new ExecuteFunctionUntil();
+
+	triggerIntervalFunction(do_something, 1000, shouldStopTimer);
 	// jsonExample();
 
 	// char* str = httpgetRequest("https://api.coindesk.com/v1/bpi/currentprice.json");
