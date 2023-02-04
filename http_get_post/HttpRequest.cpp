@@ -62,14 +62,12 @@ int HttpRequest::HttpRequestExec(const char* strMethod, const char* strUrl, cons
 	//创建HTTP协议头
 	char* strHttpHead = HttpHeadCreate(strMethod, strUrl, strData);
     
-	cout<< "#### print HttpHeadCreate start ####"<<endl;
-	cout<< strHttpHead <<endl;
-	cout<< "#### print HttpHeadCreate end ####"<<endl;
+	// cout<< "#### print HttpHeadCreate start ####"<<endl;
+	// cout<< strHttpHead <<endl;
+	// cout<< "#### print HttpHeadCreate end ####"<<endl;
 	
-    cout << "==== HttpRequest:: int static m_iSocketFd = "<< m_iSocketFd <<" ===="<<endl;
-	//判断套接字m_iSocketFd是否有效，有效就直接发送数据
+    // cout << "==== HttpRequest:: int static m_iSocketFd = "<< m_iSocketFd <<" ===="<<endl;
 	if(m_iSocketFd != INVALID_SOCKET) {
-		//检查SocketFd是否为可写不可读状态
 		if(SocketFdCheck(m_iSocketFd) > 0) {
 			char* strResult = HttpDataTransmit(strHttpHead, m_iSocketFd);
 			if(NULL != strResult) {
@@ -82,7 +80,7 @@ int HttpRequest::HttpRequestExec(const char* strMethod, const char* strUrl, cons
 	//Create socket
 	m_iSocketFd = INVALID_SOCKET;
 	m_iSocketFd = socket(AF_INET, SOCK_STREAM, 0); //AF_INET 是 IPv4 网络协议的套接字类型
-	cout << "==== HttpRequest:: int static m_iSocketFd = "<< m_iSocketFd <<" ===="<<endl;
+	// cout << "==== HttpRequest:: int static m_iSocketFd = "<< m_iSocketFd <<" ===="<<endl;
 	
     if (m_iSocketFd < 0 ) { 
 		DebugOut("%s %s %d\tsocket error! Error code: %d，Error message: %s\n", __FILE__, __FUNCTION__, __LINE__, errno, strerror(errno)); 
@@ -91,7 +89,7 @@ int HttpRequest::HttpRequestExec(const char* strMethod, const char* strUrl, cons
   
 	//Bind address and port
 	int iPort = GetPortFromUrl(strUrl);
-    cout<< "==== print GetPortFromUrl : "<< iPort <<" ===="<<endl;
+    // cout<< "==== print GetPortFromUrl : "<< iPort <<" ===="<<endl;
 	
 	if(iPort < 0) {
 		DebugOut("%s %s %d\t从URL获取端口失败\n", __FILE__, __FUNCTION__, __LINE__); 
@@ -99,7 +97,7 @@ int HttpRequest::HttpRequestExec(const char* strMethod, const char* strUrl, cons
 	}
 	
 	char* strIP = GetIPFromUrl(strUrl);
-    cout<< "==== print GetIPFromUrl : "<< strIP <<" ===="<<endl;
+    // cout<< "==== print GetIPFromUrl : "<< strIP <<" ===="<<endl;
 
 	if(strIP == NULL) {
 		DebugOut("%s %s %d\t从URL获取IP地址失败\n", __FILE__, __FUNCTION__, __LINE__);
@@ -127,7 +125,7 @@ int HttpRequest::HttpRequestExec(const char* strMethod, const char* strUrl, cons
 
 	//非阻塞方式连接
 	int iRet = connect(m_iSocketFd, (struct sockaddr *)&servaddr, sizeof(servaddr));
-    cout <<"==== 非阻塞方式连接, iRet = "<< iRet <<" ===="<<endl;    
+    // cout <<"==== 非阻塞方式连接, iRet = "<< iRet <<" ===="<<endl;    
 
 	if(iRet == 0) {
 		char* strResult = HttpDataTransmit(strHttpHead, m_iSocketFd);
@@ -149,11 +147,11 @@ int HttpRequest::HttpRequestExec(const char* strMethod, const char* strUrl, cons
 	}
 	
 	iRet = SocketFdCheck(m_iSocketFd);
-    cout <<"==== iRet = "<< iRet <<" ===="<<endl;
+    // cout <<"==== iRet = "<< iRet <<" ===="<<endl;
 	if(iRet > 0) {
 		char* strResult = HttpDataTransmit(strHttpHead, m_iSocketFd); // http data transmit
 
-		cout<<"@@@@@     HttpDataTransmit(strHttpHead, m_iSocketFd) from hear start     @@@@@"<<endl;
+		// cout<<"@@@@@     HttpDataTransmit(strHttpHead, m_iSocketFd) from hear start     @@@@@"<<endl;
 
 		if(NULL == strResult) {
 			close(m_iSocketFd);
@@ -163,9 +161,9 @@ int HttpRequest::HttpRequestExec(const char* strMethod, const char* strUrl, cons
 		else {
 			strcpy(strResponse, strResult);
 			
-			cout<<"#####    print strResponse start    #####"<<endl;
-			cout<< strResponse <<endl;
-			cout<<"#####    print strResponse end      #####"<<endl;
+			// cout<<"#####    print strResponse start    #####"<<endl;
+			// cout<< strResponse <<endl;
+			// cout<<"#####    print strResponse end      #####"<<endl;
 
 			free(strResult);
 			return 1;
@@ -186,8 +184,8 @@ char* HttpRequest::HttpHeadCreate(const char* strMethod, const char* strUrl, con
 {
 	char* strHost = GetHostAddrFromUrl(strUrl);
 	char* strParam = GetParamFromUrl(strUrl);
-    cout<< "==== print GetHostAddrFromUrl : "<< strHost <<" ====" <<endl;
-	cout<< "==== print GetParamFromUrl : "<< strParam <<" ===="<<endl;
+    // cout<< "==== print GetHostAddrFromUrl : "<< strHost <<" ====" <<endl;
+	// cout<< "==== print GetParamFromUrl : "<< strParam <<" ===="<<endl;
 	
 	char* strHttpHead = (char*)malloc(BUFSIZE);
 	memset(strHttpHead, 0, BUFSIZE);
@@ -235,7 +233,7 @@ char* HttpRequest::HttpDataTransmit(char *strHttpHead, const int iSockFd)
 	int ret = send(iSockFd,(void *)strHttpHead,strlen(strHttpHead)+1,0); // 客户端通过send()发送数据给输出缓冲区，由TCP协议发送到服务器
 	free(strHttpHead);
 	
-	cout<<"==== send() data, return : "<< ret <<" ===="<<endl;
+	// cout<<"==== send() data, return : "<< ret <<" ===="<<endl;
 
 	if (ret < 0) { 
 		DebugOut("%s %s %d\tsend error! Error code: %d，Error message: %s\n", __FILE__, __FUNCTION__, __LINE__, errno, strerror(errno)); 
@@ -258,8 +256,8 @@ char* HttpRequest::HttpDataTransmit(char *strHttpHead, const int iSockFd)
 			return NULL; 
 		}
 		else if(ret > 0) {
-			cout<<"==== recive() data, count(return < 0) : "<< count <<" ===="<<endl;
-			cout<<"==== recive() data, return : "<< ret <<" ===="<<endl;						
+			// cout<<"==== recive() data, count(return < 0) : "<< count <<" ===="<<endl;
+			// cout<<"==== recive() data, return : "<< ret <<" ===="<<endl;						
 			return buf;  //接收到服务器响应的数据
 		}
 		else if(ret < 0) //出错

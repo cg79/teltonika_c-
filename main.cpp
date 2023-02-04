@@ -1,9 +1,15 @@
 #include <iostream>
+#include <stdio.h>
 
-#include "http_get_post/HttpRequest.h"
+// #include "http_get_post/HttpRequest.h"
 #include "json/json.hpp"
 
+// #include "curlpp/cURLpp.hpp"
+// #include "curlpp/Options.hpp"
+#include <curl/curl.h>
+
 using namespace std;
+
 
 int jsonExample(){
 	nlohmann::json jdEmployees =  {
@@ -23,7 +29,6 @@ int jsonExample(){
    cout << "Department: " << dept << endl;
 
    return 0;
-
 }
 
 char* stringToCharArray(string input){
@@ -39,47 +44,62 @@ char* stringToCharArray(string input){
 	return char_array;
 }
 
-char* httpgetRequest(string url){
+
+size_t writeFunction(void *ptr, size_t size, size_t nmemb, std::string* data) {
+    data->append((char*) ptr, size * nmemb);
+
+    return size * nmemb;
+}
+
+string httpgetRequest(string url){
 
 	const char* url3 = stringToCharArray(url);
-	HttpRequest* Http = new HttpRequest;
-	
-	// const char* url3 = "https://api.coindesk.com/v1/bpi/currentprice.json";
-	char* str = (char*)malloc(BUFSIZE);
-       
-	memset(str, 0, BUFSIZE);  // memset 函数是内存赋值函数，用来给某一块内存空间进行赋值的
-	if(Http->HttpGet(url3, str)) {
-		printf("%s\n", str);
-	} else {
-		cout<< url3 <<"HttpGet"<<endl;
-	}
 
-	free(str);
+	string response_string;
 
-	return str;
+	curl_global_init(CURL_GLOBAL_DEFAULT);
+    auto curl = curl_easy_init();
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, url3);
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+        curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 50L);
+        curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
+
+        
+        string header_string;
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunction);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+        curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
+
+        curl_easy_perform(curl);
+        // cout << response_string;
+        curl_easy_cleanup(curl);
+        curl_global_cleanup();
+        curl = NULL;
+    }
+
+	return response_string;
 }
+
+
 
 
 int main()
 {
-	// jsonExample();
-	httpgetRequest("https://api.coindesk.com/v1/bpi/currentprice.json");
+
+	string response = httpgetRequest("https://api.coindesk.com/v1/bpi/currentprice.json");
+	cout << response;
+
+	 jsonExample();
+
+	// char* str = httpgetRequest("https://api.coindesk.com/v1/bpi/currentprice.json");
+	// printf("%s\n", str);
+
+	// free(str);
+
 	// httpGet();
 	// printf("%s\n", str);
 	
-
-
-
-    
-	/*
-	memset(str, 0, BUFSIZE);	
-	//安装Tomcat
-	if(Http->HttpGet("127.0.0.1", str)) {
-		printf("%s\n", str);
-	} else {
-		printf("127.0.0.1 HttpGet请求失败!\n");
-	}
-	*/
 
 	
 	return 0;

@@ -1,8 +1,7 @@
-# Linux下C++实现的Http请求（get 和 post）
+# Linux c++
 
-参考代码：https://download.csdn.net/download/dezhihuang/9515232
+// building: c++ main.cpp -lcurl -o HttpTest
 
-运行HTTP请求程序
 
 ```
 $ make clean
